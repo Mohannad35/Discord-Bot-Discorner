@@ -19,19 +19,18 @@ const bot = new Client({
 		GatewayIntentBits.MessageContent
 	]
 });
-
-const player = new Player(bot);
-player.extractors.register(SpotifyExtractor, {});
-player.extractors.register(YouTubeExtractor, {});
-player.extractors.register(SoundCloudExtractor, {});
-
-bot.player = player;
 bot.commands = new Collection();
 bot.cooldowns = new Collection();
 bot.logger = require('./functions/logger');
 bot.utils = require('./functions/utils');
 bot.say = require('./functions/reply');
 
-require('./handlers/event')(bot, bot.player);
+const player = new Player(bot, { ignoreInstance: true });
+// const player = Player.singleton(client);
+player.extractors.register(SpotifyExtractor, {});
+player.extractors.register(YouTubeExtractor, {});
+player.extractors.register(SoundCloudExtractor, {});
+
+require('./handlers/event')(bot, player);
 
 bot.login(process.env.DISCORD_BOT_TOKEN);

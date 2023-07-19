@@ -1,7 +1,9 @@
+const { useMainPlayer } = require('discord-player');
 const glob = require('glob');
 
-module.exports = function loadEvents(bot, player) {
+module.exports = function loadEvents(bot) {
 	const eventFiles = glob.sync('events/**/*.js', { absolute: true });
+	const player = useMainPlayer();
 
 	for (const file of eventFiles) {
 		const event = require(file);
