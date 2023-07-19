@@ -1,5 +1,6 @@
 const spotifyWebApi = require('spotify-web-api-node');
 const axios = require('axios');
+const config = require('config');
 
 const spotifyApi = new spotifyWebApi();
 
