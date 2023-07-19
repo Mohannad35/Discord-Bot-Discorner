@@ -10,7 +10,7 @@ const consoleFormat = printf(({ message, label, timestamp }) => {
 });
 
 const logger = createLogger({
-	level: process.env.LOG_LEVEL || 'info',
+	level: 'info',
 	format: combine(
 		errors({ stack: true }),
 		timestamp({ format: 'YYYY-MM-DD hh:mm:ss.SSS A' }),

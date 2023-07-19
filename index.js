@@ -5,6 +5,7 @@ const {
 	YouTubeExtractor,
 	SoundCloudExtractor
 } = require('@discord-player/extractor');
+const config = require('config');
 
 require('dotenv/config');
 require('./functions/checkValid');
@@ -33,4 +34,4 @@ player.extractors.register(SoundCloudExtractor, {});
 
 require('./handlers/event')(bot, player);
 
-bot.login(process.env.DISCORD_BOT_TOKEN);
+bot.login(config.get('DiscordBotToken'));
