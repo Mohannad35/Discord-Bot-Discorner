@@ -5,10 +5,10 @@ const {
 	YouTubeExtractor,
 	SoundCloudExtractor
 } = require('@discord-player/extractor');
-const config = require('config');
 
 require('dotenv/config');
 require('./functions/checkValid');
+const config = require('config');
 
 const bot = new Client({
 	intents: [
