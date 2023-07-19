@@ -1,0 +1,7 @@
+{
+	"env": "NODE_ENV",
+	"DiscordBotToken": "DISCORD_BOT_TOKEN",
+	"DiscordBotClientId": "DISCORD_BOT_CLIENT_ID",
+	"SpotifyClientId": "SPOTIFY_CLIENT_ID",
+	"SpotifyClientSecret": "SPOTIFY_CLIENT_SECRET"
+}
