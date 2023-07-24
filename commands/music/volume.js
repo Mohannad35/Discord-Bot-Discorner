@@ -1,33 +1,42 @@
-const { ApplicationCommandOptionType } = require("discord.js");
+const { useQueue } = require('discord-player');
+const { ApplicationCommandOptionType } = require('discord.js');
+const { baseEmbed, successEmbed } = require('../../functions/embeds');
 
 module.exports = {
-  name: "volume",
-  description: "Check or change the volume",
-  category: "music",
-  options: [
-    {
-      name: "amount",
-      description: "Volume amount to set",
-      type: ApplicationCommandOptionType.Number,
-      required: false,
-      minValue: 1,
-      maxValue: 200,
-    },
-  ],
-  execute(bot, interaction, queue) {
-    const newVol = interaction.options.getNumber("amount", false);
+	name: 'volume',
+	description: 'Check or change the volume',
+	category: 'music',
+	options: [
+		{
+			name: 'amount',
+			description: 'Volume amount to set',
+			type: ApplicationCommandOptionType.Number,
+			required: false,
+			minValue: 1,
+			maxValue: 200
+		}
+	],
 
-    if (!newVol) {
-      const embed = bot.utils
-        .baseEmbed(interaction)
-        .setDescription(`Current volume is \`${queue.node.volume}%\`.`)
-        .setFooter({ text: "Use '/volume <1-200>' to change the volume." });
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 
-      return interaction.reply({ ephemeral: true, embeds: [embed] }).catch(console.error);
-    }
+		const queue = useQueue(interaction.guild.id);
 
-    queue.node.setVolume(newVol);
+		const newVol = interaction.options.getNumber('amount', false);
 
-    return bot.say.successEmbed(interaction, `Volume is updated to ${newVol}.`);
-  },
+		if (!newVol) {
+			const embed = baseEmbed(interaction)
+				.setDescription(`Current volume is \`${queue.node.volume}%\`.`)
+				.setFooter({ text: "Use '/volume <1-200>' to change the volume." });
+
+			const msg = await interaction
+				.editReply({ ephemeral: true, embeds: [embed] })
+				.catch(console.error);
+			return setTimeout(() => interaction.deleteReply(msg), 5000);
+		}
+
+		queue.node.setVolume(newVol);
+
+		return await successEmbed(interaction, `✅ | Volume is updated to ${newVol}.`);
+	}
 };

@@ -1,9 +1,11 @@
+const { bot } = require('../../functions/bot');
+const { baseEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'connection',
 
-	async execute(bot, queue) {
-		const embed = bot.utils
-			.baseEmbed(queue)
+	async execute(queue) {
+		const embed = baseEmbed(queue)
 			.setAuthor({ name: `${bot.user.username}`, iconURL: bot.user.displayAvatarURL() })
 			.setDescription(
 				`👍 Joined ${queue.channel.toString()} and 📄 queued ${queue.metadata.toString()}`

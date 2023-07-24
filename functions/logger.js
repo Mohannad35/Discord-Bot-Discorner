@@ -19,25 +19,22 @@ const logger = createLogger({
 	defaultMeta: { service: 'user-service' },
 	transports: [
 		new transports.File({ filename: 'logs/error.log', level: 'error' }),
-		new transports.File({ filename: 'logs/combined.log', level: 'info' })
+		new transports.File({ filename: 'logs/combined.log', level: 'info' }),
+		new transports.Console({ level: 'info', format: consoleFormat })
 	],
-	exceptionHandlers: [new transports.File({ filename: 'logs/exception.log' })],
-	rejectionHandlers: [new transports.File({ filename: 'logs/rejections.log' })]
+	exceptionHandlers: [
+		new transports.File({ filename: 'logs/exception.log' }),
+		new transports.Console({ level: 'info', format: consoleFormat })
+	],
+	rejectionHandlers: [
+		new transports.File({ filename: 'logs/rejections.log' }),
+		new transports.Console({ level: 'info', format: consoleFormat })
+	]
 });
 
-if (config.has('logtailSourceToken')) {
+if (config.has('logtailSourceToken') && config.get('logtailSourceToken') !== '') {
 	const logtail = new Logtail(config.get('logtailSourceToken'));
 	logger.add(new LogtailTransport(logtail));
-}
-if (config.get('env') === 'development') {
-	logger.add(
-		new transports.Console({
-			level: 'info',
-			format: consoleFormat,
-			handleExceptions: true,
-			handleRejections: true
-		})
-	);
 }
 
 class Logger {

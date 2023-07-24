@@ -1,16 +1,21 @@
+const { useQueue } = require('discord-player');
+const { errorEmbed, successEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'skip',
 	description: 'Skip current track',
 	category: 'music',
 
-	async execute(bot, interaction, queue) {
-		if (queue.size < 1 && queue.repeatMode !== 3) {
-			const msg = await bot.say.errorEmbed(interaction, '❌ | The queue has no more track.');
-			setTimeout(() => msg.delete(), 10000);
-		}
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
+		if (queue.size < 1 && queue.repeatMode !== 3)
+			return await errorEmbed(interaction, '❌ | The queue has no more track.');
+
 		queue.node.skip();
 
-		const msg = await bot.say.successEmbed(interaction, '✅ | Skipped the current track.');
-		setTimeout(() => msg.delete(), 10000);
+		await successEmbed(interaction, '✅ | Skipped the current track.');
 	}
 };

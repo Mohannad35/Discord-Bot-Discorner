@@ -1,8 +1,14 @@
 const glob = require('glob');
 const { ApplicationCommandType } = require('discord.js');
+const logger = require('../functions/logger');
+const { commands, bot } = require('../functions/bot');
 
-module.exports = async bot => {
+module.exports = async () => {
 	const commandFiles = glob.sync('commands/**/*.js', { absolute: true });
+	// const commandFiles = glob.sync(
+	// 	['commands/music/back.js', 'commands/music/play.js', 'commands/music/skip.js'],
+	// 	{ absolute: true }
+	// );
 
 	for (const file of commandFiles) {
 		const command = require(file);
@@ -18,7 +24,7 @@ module.exports = async bot => {
 		}
 
 		if (!command.category) {
-			bot.logger.warn(
+			logger.warn(
 				'[COMMANDS]',
 				`${command.name} command will not be shown in the help command because no category is set.`
 			);
@@ -35,9 +41,9 @@ module.exports = async bot => {
 		delete require.cache[require.resolve(file)];
 
 		// debug
-		bot.logger.debug('COMMANDS', `Loaded: ${command.name}`);
+		logger.debug('COMMANDS', `Loaded: ${command.name}`);
 
-		bot.commands.set(command.name, command);
+		commands.set(command.name, command);
 	}
-	bot.logger.debug('COMMANDS', `All ${bot.commands.size} commands loaded!`);
+	logger.debug('COMMANDS', `All ${commands.size} commands loaded!`);
 };

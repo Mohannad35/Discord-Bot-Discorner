@@ -1,4 +1,6 @@
+const { useQueue } = require('discord-player');
 const { ApplicationCommandOptionType } = require('discord.js');
+const { baseEmbed, errorEmbed, wrongEmbed } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'trackinfo',
@@ -13,18 +15,21 @@ module.exports = {
 		}
 	],
 
-	execute(bot, interaction, queue) {
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
 		const index = interaction.options.getNumber('index', true) - 1;
 
 		if (index > queue.size || index < 0)
-			return bot.say.errorEmbed(interaction, '❌ | Provided track Index does not exist.');
+			return await errorEmbed(interaction, '❌ | Provided track Index does not exist.');
 
 		const track = queue.tracks.toArray()[index];
 
-		if (!track) return bot.say.wrongEmbed(interaction, '❌ | The track was not found.');
+		if (!track) return await wrongEmbed(interaction, '❌ | The track was not found.');
 
-		const embed = bot.utils
-			.baseEmbed(interaction)
+		const embed = baseEmbed(interaction)
 			.setAuthor({ name: 'Trackinfo 🎵' })
 			.setTitle(`${track.title}`)
 			.setURL(`${track.url}`)
@@ -33,6 +38,9 @@ module.exports = {
 Duration: ${track.duration}
 Position in queue: ${index + 1}`);
 
-		return interaction.reply({ ephemeral: true, embeds: [embed] }).catch(console.error);
+		const msg = await interaction
+			.editReply({ ephemeral: true, embeds: [embed] })
+			.catch(console.error);
+		setTimeout(() => interaction.deleteReply(msg), 5000);
 	}
 };

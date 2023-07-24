@@ -1,9 +1,10 @@
 const { Events } = require('discord.js');
+const { sendErrorLog } = require('../../functions/utils');
 
 module.exports = {
 	name: Events.Warn,
 
-	execute(bot, error) {
-		return bot.utils.sendErrorLog(bot, error, 'warning');
+	execute(error) {
+		return sendErrorLog(error, 'warning');
 	}
 };

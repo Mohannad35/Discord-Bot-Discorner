@@ -1,16 +1,18 @@
 const { Events, ActivityType } = require('discord.js');
+const { formatNumber } = require('../../functions/utils');
+const logger = require('../../functions/logger');
+const { bot } = require('../../functions/bot');
 
 module.exports = {
 	name: Events.ClientReady,
 	once: true,
 
-	async execute(bot) {
+	async execute() {
 		// initializing commands
-		require('../../handlers/Command')(bot);
+		await require('../../handlers/command')();
 
-		const format = bot.utils.formatNumber;
-		const serverCount = format(bot.guilds.cache.size);
-		const userCount = format(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
+		const serverCount = formatNumber(bot.guilds.cache.size);
+		const userCount = formatNumber(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
 
 		const statuses = [
 			{
@@ -23,7 +25,7 @@ module.exports = {
 
 		const data = `${bot.user.tag} is ready in ${serverCount} servers.`;
 
-		bot.logger.info('BOT_READY', data);
+		logger.info('BOT_READY', data);
 
 		setInterval(() => {
 			const status = statuses[Math.floor(Math.random() * statuses.length)];

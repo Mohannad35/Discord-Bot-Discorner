@@ -1,7 +1,9 @@
 const { useMainPlayer } = require('discord-player');
 const glob = require('glob');
+const logger = require('../functions/logger');
+const { bot } = require('../functions/bot');
 
-module.exports = function loadEvents(bot) {
+module.exports = function loadEvents() {
 	const eventFiles = glob.sync('events/**/*.js', { absolute: true });
 	const player = useMainPlayer();
 
@@ -20,16 +22,16 @@ module.exports = function loadEvents(bot) {
 		}
 
 		if (type === 'player') {
-			player.events.on(event.name, event.execute.bind(null, bot));
+			player.events.on(event.name, event.execute);
 		} else if (event.once) {
-			bot.once(event.name, event.execute.bind(null, bot));
+			bot.once(event.name, event.execute);
 		} else {
-			bot.on(event.name, event.execute.bind(null, bot));
+			bot.on(event.name, event.execute);
 		}
 
 		delete require.cache[require.resolve(file)];
 
-		bot.logger.debug('EVENTS', `Loaded ${type}: ${event.name}`);
+		logger.debug('EVENTS', `Loaded ${type}: ${event.name}`);
 	}
-	bot.logger.debug('EVENTS', `All ${eventFiles.length} events loaded!`);
+	logger.debug('EVENTS', `All ${eventFiles.length} events loaded!`);
 };

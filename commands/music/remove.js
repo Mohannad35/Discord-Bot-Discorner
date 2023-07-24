@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { useQueue } = require('discord-player');
+const { wrongEmbed, successEmbed } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'remove',
@@ -15,16 +16,20 @@ module.exports = {
 	],
 
 	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
 		const queue = useQueue(interaction.guild.id);
 		const position = interaction.options.getString('position');
 
-		if (!queue || !queue.isPlaying()) return interaction.reply('❌ | No music is being played!');
-		if (!position.match(/^[0-9]+$/)) return interaction.reply('❌ | Invalid position!');
+		if (!queue || !queue.isPlaying())
+			return await wrongEmbed(interaction, '❌ | No music is being played!');
+		if (!position.match(/^[0-9]+$/))
+			return await wrongEmbed(interaction, '❌ | Invalid position!');
 		if (position < 1 || position > queue.tracks.length)
-			return interaction.reply('❌ | Invalid position!');
+			return await wrongEmbed(interaction, '❌ | Invalid position!');
 
 		queue.removeTrack(queue.tracks.toArray()[position - 1]);
 
-		return interaction.reply(`✅ | Track removed from queue!`);
+		return await successEmbed(interaction, `✅ | Track removed from queue!`);
 	}
 };

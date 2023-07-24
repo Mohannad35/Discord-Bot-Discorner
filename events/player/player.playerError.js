@@ -1,10 +1,11 @@
 const { EmbedBuilder, Colors } = require('discord.js');
+const { sendErrorLog } = require('../../functions/utils');
 
 module.exports = {
 	name: 'playerError',
 
-	async execute(bot, queue, error) {
-		bot.utils.sendErrorLog(bot, error, 'error');
+	async execute(queue, error) {
+		sendErrorLog(error, 'error');
 
 		const embed = new EmbedBuilder()
 			.setTitle('An error occured while playing')

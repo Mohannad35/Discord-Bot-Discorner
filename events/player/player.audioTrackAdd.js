@@ -1,9 +1,10 @@
+const { baseEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'audioTrackAdd',
 
-	async execute(bot, queue, track) {
-		const embed = bot.utils
-			.baseEmbed(queue)
+	async execute(queue, track) {
+		const embed = baseEmbed(queue)
 			.setAuthor({ name: `Track queued - Position ${queue.node.getTrackPosition(track) + 1}` })
 			.setTitle(`${track.title}`)
 			.setURL(`${track.url}`)

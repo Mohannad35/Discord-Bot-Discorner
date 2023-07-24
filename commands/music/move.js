@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { useQueue } = require('discord-player');
+const { wrongEmbed, successEmbed } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'move',
@@ -21,19 +22,25 @@ module.exports = {
 	],
 
 	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
 		const queue = useQueue(interaction.guild.id);
 		const from = interaction.options.getString('from');
 		const to = interaction.options.getString('to');
 
-		if (!queue || !queue.isPlaying()) return interaction.reply('❌ | No music is being played!');
-		if (!from.match(/^[0-9]+$/)) return interaction.reply('❌ | Invalid position!');
-		if (!to.match(/^[0-9]+$/)) return interaction.reply('❌ | Invalid position!');
+		if (!queue || !queue.isPlaying())
+			return await wrongEmbed(interaction, '❌ | No music is being played!');
+		if (!from.match(/^[0-9]+$/))
+			return await wrongEmbed(interaction, '❌ | Invalid from position!');
+		if (!to.match(/^[0-9]+$/))
+			return await wrongEmbed(interaction, '❌ | Invalid to position!');
 		if (from < 1 || from > queue.tracks.length)
-			return interaction.reply('❌ | Invalid from position!');
-		if (to < 1 || to > queue.tracks.length) return interaction.reply('❌ | Invalid to position!');
+			return await wrongEmbed(interaction, '❌ | Invalid from position!');
+		if (to < 1 || to > queue.tracks.length)
+			return await wrongEmbed(interaction, '❌ | Invalid to position!');
 
 		queue.moveTrack(queue.tracks.toArray()[from - 1], to - 1);
 
-		return interaction.reply(`✅ | Track moved from ${from} to ${to}!`);
+		return await successEmbed(interaction, `✅ | Track moved from ${from} to ${to}!`);
 	}
 };

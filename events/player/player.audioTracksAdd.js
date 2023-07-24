@@ -1,9 +1,10 @@
+const { baseEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'audioTracksAdd',
 
-	async execute(bot, queue, tracks) {
-		const embed = bot.utils
-			.baseEmbed(queue)
+	async execute(queue, tracks) {
+		const embed = baseEmbed(queue)
 			.setTitle(`${tracks.length} tracks queued.`)
 			.setFooter({
 				text: `Requested by: ${tracks[0].requestedBy.tag}`,

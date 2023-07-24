@@ -31,6 +31,10 @@ function checkValid() {
 		throw Error('[ERROR][BOT]: SPOTIFY_CLIENT_SECRET is required');
 	}
 
+	if (!config.has('logtailSourceToken') || config.get('logtailSourceToken') === '') {
+		logger.warn('config', 'LOGTAIL_SOURCE_TOKEN is missing, logs will not be sent to BetterStack');
+	}
+
 	if (!config.has('botInviteLink')) {
 		logger.warn('config', 'botInviteLink is required to invite the bot');
 	}

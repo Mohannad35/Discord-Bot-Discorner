@@ -1,27 +1,35 @@
-const { ApplicationCommandOptionType } = require("discord.js");
+const { useQueue } = require('discord-player');
+const { ApplicationCommandOptionType } = require('discord.js');
+const { errorEmbed, wrongEmbed, successEmbed } = require('../../functions/embeds');
 
 module.exports = {
-  name: "jump",
-  description: "Jump to specific track on the queue without removing other tracks",
-  category: "music",
-  options: [
-    {
-      name: "index",
-      description: "The track index to jump to",
-      type: ApplicationCommandOptionType.Number,
-      required: true,
-    },
-  ],
-  execute(bot, interaction, queue) {
-    if (queue.isEmpty()) return bot.say.errorEmbed(interaction, "The queue has no more track.");
+	name: 'jump',
+	description: 'Jump to specific track on the queue without removing other tracks',
+	category: 'music',
+	options: [
+		{
+			name: 'index',
+			description: 'The track index to jump to',
+			type: ApplicationCommandOptionType.Number,
+			required: true
+		}
+	],
 
-    const index = interaction.options.getNumber("index", true) - 1;
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 
-    if (index > queue.size || index < 0)
-      return bot.say.wrongEmbed(interaction, "Provided track index does not exist.");
+		const queue = useQueue(interaction.guild.id);
 
-    queue.node.jump(index);
+		if (queue.isEmpty())
+			return await errorEmbed(interaction, '❌ | The queue has no more track.');
 
-    return bot.say.successEmbed(interaction, `Jumped to track ${index + 1}.`);
-  },
+		const index = interaction.options.getNumber('index', true) - 1;
+
+		if (index > queue.size || index < 0)
+			return await wrongEmbed(interaction, '❌ | Provided track index does not exist.');
+
+		queue.node.jump(index);
+
+		return await successEmbed(interaction, `✅ | Jumped to track ${index + 1}.`);
+	}
 };

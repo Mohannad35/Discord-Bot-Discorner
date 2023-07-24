@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
-const { QueueRepeatMode } = require('discord-player');
+const { QueueRepeatMode, useQueue } = require('discord-player');
+const { baseEmbed } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'repeat',
@@ -41,29 +42,33 @@ module.exports = {
 		}
 	],
 
-	async execute(bot, interaction, queue) {
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
 		const method = await interaction.options.getString('method');
 
 		let description;
 		switch (method) {
 			case 'off':
 				queue.setRepeatMode(QueueRepeatMode.OFF);
-				description = 'Turned off repeat mode.';
+				description = '✅ | Turned off repeat mode.';
 				break;
 
 			case 'track':
 				queue.setRepeatMode(QueueRepeatMode.TRACK);
-				description = 'Looping the current track.';
+				description = '🔂 | Looping the current track.';
 				break;
 
 			case 'queue':
 				queue.setRepeatMode(QueueRepeatMode.QUEUE);
-				description = 'Looping the current queue.';
+				description = '🔁 | Looping the current queue.';
 				break;
 
 			case 'autoplay':
 				queue.setRepeatMode(QueueRepeatMode.AUTOPLAY);
-				description = 'Autoplay mode activated.';
+				description = '🔄️ | Autoplay mode activated.';
 				break;
 
 			// case "show":
@@ -78,15 +83,19 @@ module.exports = {
 				} else if (queue.repeatMode === 0) {
 					status = 'off';
 				}
-				const embed = bot.utils
-					.baseEmbed(interaction)
+				const embed = baseEmbed(interaction)
 					.setDescription(`Playback repeat status: \`${status}\`.`)
 					.setFooter({ text: `Use '/repeat <off|track|queue|autoplay>' to change repeat mode.` });
-				return interaction.reply({ ephemeral: true, embeds: [embed] }).catch(console.error);
+				const msg = await interaction
+					.editReply({ ephemeral: true, embeds: [embed] })
+					.catch(console.error);
+				setTimeout(() => interaction.deleteReply(msg), 5000);
+				return;
 		}
 
-		return interaction.reply({
-			embeds: [bot.utils.baseEmbed(interaction).setDescription(description)]
+		const msg = await interaction.editReply({
+			embeds: [baseEmbed(interaction).setDescription(description)]
 		});
+		setTimeout(() => interaction.deleteReply(msg), 5000);
 	}
 };

@@ -1,17 +1,24 @@
+const { useQueue } = require('discord-player');
+const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'shuffle',
 	description: 'Shuffle the queue!',
 	category: 'music',
 
-	execute(bot, interaction, queue) {
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
 		if (!queue || !queue.isPlaying())
-			return bot.say.wrongEmbed(interaction, '❌ | No music is being played!');
+			return await wrongEmbed(interaction, '❌ | No music is being played!');
 
 		if (queue.size < 3)
-			return bot.say.wrongEmbed(interaction, 'Need at least 3 tracks in the queue to shuffle.');
+			return await wrongEmbed(interaction, 'Need at least 3 tracks in the queue to shuffle.');
 
 		queue.tracks.shuffle();
 
-		return bot.say.successEmbed(interaction, '✅ | Queue shuffled!');
+		return await successEmbed(interaction, '✅ | Queue shuffled!');
 	}
 };

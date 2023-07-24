@@ -1,10 +1,21 @@
-module.exports = {
-  name: "replay",
-  description: "Replay the current track.",
-  category: "music",
-  execute(bot, interaction, queue) {
-    queue.node.seek(0);
+const { useQueue } = require('discord-player');
+const { wrongEmbed, successEmbed } = require('../../functions/embeds');
 
-    return bot.say.successEmbed(interaction, "Replayed the current track.");
-  },
+module.exports = {
+	name: 'replay',
+	description: 'Replay the current track.',
+	category: 'music',
+
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
+		if (!queue || !queue.isPlaying())
+			return await wrongEmbed(interaction, '❌ | There is no track in the queue.');
+
+		await queue.node.seek(0);
+
+		return await successEmbed(interaction, '✅ | Replayed the current track.');
+	}
 };

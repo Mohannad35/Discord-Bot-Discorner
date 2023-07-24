@@ -1,17 +1,20 @@
+const { useQueue } = require('discord-player');
+const { errorEmbed, successEmbed } = require('../../functions/embeds');
+
 module.exports = {
 	name: 'clear',
 	description: 'Clear the tracks in the queue.',
 	category: 'music',
 
-	async execute(bot, interaction, queue) {
-		if (queue.size < 2) {
-			const msg = await bot.say.errorEmbed(interaction, 'The queue has no more track.');
-			return setTimeout(() => msg.delete(), 10000);
-		}
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 
-		await queue.tracks.clear();
+		const queue = useQueue(interaction.guild.id);
 
-		const msg = await bot.say.successEmbed(interaction, 'Cleared the queue tracks.');
-		setTimeout(() => msg.delete(), 10000);
+		if (queue.size < 2) return await errorEmbed(interaction, '❌ | The queue has no more track.');
+
+		queue.tracks.clear();
+
+		await successEmbed(interaction, '✅ | Cleared the queue tracks.');
 	}
 };

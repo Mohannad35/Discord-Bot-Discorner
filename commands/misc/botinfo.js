@@ -1,23 +1,23 @@
-const config = require('config');
-const { version, time, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { version, time } = require('discord.js');
+const { formatNumber, formatDuration } = require('../../functions/utils');
+const { baseEmbed } = require('../../functions/embeds');
+const { commands, bot } = require('../../functions/bot');
 
 module.exports = {
 	name: 'botinfo',
 	description: 'Get some info about the bot',
 	category: 'misc',
-	async execute(bot, interaction) {
-		const format = bot.utils.formatNumber;
 
-		const serverCount = format(bot.guilds.cache.size);
-		// const channelCount = format(bot.guilds.cache.size);
-		// const userCount = format(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
-		const commandCount = format(bot.commands.size);
+	async execute(interaction) {
+		const serverCount = formatNumber(bot.guilds.cache.size);
+		// const channelCount = formatNumber(bot.guilds.cache.size);
+		// const userCount = formatNumber(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
+		const commandCount = formatNumber(commands.size);
 
 		const createdAt = new Date(bot.user.createdAt);
-		const uptime = bot.utils.formatDuration(Math.floor(bot.uptime / 1000));
+		const uptime = formatDuration(Math.floor(bot.uptime / 1000));
 
-		const embed = bot.utils
-			.baseEmbed(interaction)
+		const embed = baseEmbed(interaction)
 			.setAuthor({
 				name: `${bot.user.username}’s Info`,
 				iconURL: bot.user.displayAvatarURL()
@@ -56,10 +56,11 @@ Platform: ${process.platform}`
 
 		// const buttonsRow = new ActionRowBuilder().addComponents([supportButton, inviteButton]);
 
-		return interaction.reply({
+		await interaction.reply({
 			ephemeral: true,
 			embeds: [embed]
 			// components: [buttonsRow]
 		});
+		setTimeout(() => interaction.deleteReply(), 15000);
 	}
 };

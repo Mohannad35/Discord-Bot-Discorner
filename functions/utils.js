@@ -1,60 +1,40 @@
-const DJS = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
+const logger = require('./logger');
 
-/**
- * logs error through discord webhook
- * @param {DJS.Client} bot
- * @param {DJS.DiscordAPIError|HTTPError|Error|unknown} error
- * @param {"warning" | "error"} type
- * @returns {Promise<void>}
- */
-async function sendErrorLog(bot, error, type) {
+async function sendErrorLog(error, type) {
 	try {
-		if (error.message.includes('Missing Access')) return;
-		if (error.message.includes('Unknown Message')) return;
-		if (error.message.includes('Unknown interaction')) return;
+		console.log(error);
+		if (error.message?.includes('Missing Access')) return;
+		if (error.message?.includes('Unknown Message')) return;
+		if (error.message?.includes('Unknown interaction')) return;
 
 		if (
-			error.stack.includes("TypeError: Cannot read properties of undefined (reading 'messages')")
+			error.stack?.includes("TypeError: Cannot read properties of undefined (reading 'messages')")
 		) {
-			return bot.logger.error('ERR_LOG', error);
+			return logger.error('ERR_LOG', error);
 		}
 
-		return bot.logger.error('ERR_LOG', error.stack || `${error}`);
+		return logger.error('ERR_LOG', error.stack || `${error}`);
 	} catch (e) {
 		console.error({ error });
 		console.error(e);
 	}
 }
 
-/**
- * check if the bot has the default permissions
- * @param {DJS.CommandInteraction | DJS.TextChannel} resolveable
- * @returns {boolean}
- */
-function havePermissions(resolveable) {
-	const channel = 'channel' in resolveable ? resolveable.channel : resolveable;
-	const permissions = channel.permissionsFor(resolveable.guild.members.me);
+function havePermissions(resolvable) {
+	const channel = 'channel' in resolvable ? resolvable.channel : resolvable;
+	const permissions = channel.permissionsFor(resolvable.guild.members.me);
 	return (
-		permissions.has(DJS.PermissionsBitField.Flags.ViewChannel) &&
-		permissions.has(DJS.PermissionsBitField.Flags.SendMessages) &&
-		permissions.has(DJS.PermissionsBitField.Flags.EmbedLinks)
+		permissions.has(PermissionsBitField.Flags.ViewChannel) &&
+		permissions.has(PermissionsBitField.Flags.SendMessages) &&
+		permissions.has(PermissionsBitField.Flags.EmbedLinks)
 	);
 }
 
-/**
- * format a number to local string
- * @param {number | string} n
- * @returns {string}
- */
 function formatNumber(n) {
 	return Number.parseFloat(String(n)).toLocaleString('en-IN');
 }
 
-/**
- * format duration to string
- * @param {number} millisec Duration in milliseconds
- * @returns {string}
- */
 function formatDuration(millisec) {
 	if (!millisec || !Number(millisec)) return '0 Second';
 	const seconds = Math.round((millisec % (60 * 1000)) / 1000);
@@ -66,11 +46,6 @@ function formatDuration(millisec) {
 	return `${seconds} Second`;
 }
 
-/**
- * convert formatted duration to milliseconds
- * @param {string} formatted duration input
- * @returns {number}
- */
 function toMilliseconds(input) {
 	if (!input) return 0;
 	if (typeof input !== 'string') return Number(input) || 0;
@@ -85,27 +60,10 @@ function toMilliseconds(input) {
 	return Number(input.replace(/[^\d.]+/g, '') * 1000) || 0;
 }
 
-/**
- * returns a custom embed with colour
- * @param {DJS.CommandInteraction|string|object|null} resolvable
- */
-function baseEmbed(resolvable) {
-	let colour = DJS.Colors.Fuchsia;
-
-	if (resolvable && typeof resolvable === 'number') colour = resolvable;
-	if (resolvable && typeof resolvable === 'object')
-		colour =
-			('guild' in resolvable ? resolvable.guild : resolvable).members.me.displayColor ||
-			DJS.Colors.Fuchsia;
-
-	return new DJS.EmbedBuilder().setColor(colour);
-}
-
 module.exports = {
 	sendErrorLog,
 	havePermissions,
 	formatNumber,
 	formatDuration,
-	toMilliseconds,
-	baseEmbed
+	toMilliseconds
 };

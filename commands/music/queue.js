@@ -1,35 +1,49 @@
+const { useQueue } = require('discord-player');
 const { ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const { wrongEmbed, queueEmbed } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'queue',
 	description: 'Show tracks in the queue.',
 	category: 'music',
 
-	async execute(bot, interaction, queue) {
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
+
+		const queue = useQueue(interaction.guild.id);
+
 		if (!queue || !queue.isPlaying())
-			return await bot.say.wrongEmbed(interaction, 'There is no track in the queue.');
+			return await wrongEmbed(interaction, '❌ | There is no track in the queue.');
 
 		//Converts the queue into a array of tracks
 		const tracks = queue.tracks.toArray().map((track, i) => `${++i}. ${track.raw.title}`);
 
 		const next = new ButtonBuilder()
 			.setCustomId('nextInQueue')
-			.setLabel('Next')
-			.setStyle(ButtonStyle.Success);
+			.setLabel('▶️')
+			.setStyle(ButtonStyle.Primary);
 
 		const prev = new ButtonBuilder()
 			.setCustomId('prevInQueue')
-			.setLabel('Prev')
+			.setLabel('◀️')
 			.setStyle(ButtonStyle.Primary)
 			.setDisabled(true);
 
-		const row = new ActionRowBuilder().addComponents(prev, next);
+		const first = new ButtonBuilder()
+			.setCustomId('firstInQueue')
+			.setLabel('⏪')
+			.setStyle(ButtonStyle.Primary)
+			.setDisabled(true);
 
-		const queueEmbed = await bot.say.queueEmbed(
-			queue,
-			tracks.slice(0, 9).join('\n'),
-			tracks.length
-		);
-		return interaction.reply({ embeds: [queueEmbed], components: [row] });
+		const last = new ButtonBuilder()
+			.setCustomId('lastInQueue')
+			.setLabel('⏩')
+			.setStyle(ButtonStyle.Primary);
+
+		const row = new ActionRowBuilder().addComponents(first, prev, next, last);
+
+		const queueEmb = await queueEmbed(queue, tracks.slice(0, 9).join('\n'), tracks.length);
+		const msg = await interaction.editReply({ embeds: [queueEmb], components: [row] });
+		// setTimeout(() => interaction.deleteReply(msg), 60000);
 	}
 };

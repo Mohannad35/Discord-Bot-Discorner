@@ -1,13 +1,21 @@
+const { useQueue } = require('discord-player');
+const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+
 module.exports = {
-  name: "resume",
-  description: "Resume the playback",
-  category: "music",
-  execute(bot, interaction, queue) {
-    if (queue.node.isPlaying())
-      return bot.say.wrongEmbed(interaction, "The playback is already playing.");
+	name: 'resume',
+	description: 'Resume the playback',
+	category: 'music',
 
-    queue.node.resume();
+	async execute(interaction) {
+		await interaction.deferReply({ ephemeral: true });
 
-    return bot.say.successEmbed(interaction, "Resumed the playback.");
-  },
+		const queue = useQueue(interaction.guild.id);
+
+		if (queue.node.isPlaying())
+			return await wrongEmbed(interaction, '❌ | The playback is already playing.');
+
+		queue.node.resume();
+
+		return await successEmbed(interaction, '✅ | Resumed the playback.');
+	}
 };
