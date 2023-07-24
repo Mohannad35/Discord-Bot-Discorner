@@ -4,17 +4,16 @@ const { queueEmbed, wrongEmbed } = require('../functions/embeds');
 const { useQueue } = require('discord-player');
 
 module.exports = {
-	name: 'nextInQueue',
+	name: 'lastInQueue',
 
 	async execute(interaction) {
-		const description = interaction.message.embeds[0].description;
-		const offset = parseInt(description.split('\n')[8].slice(0, description.indexOf('.')));
 		const queue = useQueue(interaction.guild.id);
-
 		if (!queue || !queue.isPlaying())
 			return await wrongEmbed(interaction, '❌ | No music is being played!');
 		//Converts the queue into a array of tracks
 		const tracks = queue.tracks.toArray().map((track, i) => `${i + 1}. ${track.raw.title}`);
+		const lastTracks = parseInt(tracks.length) % 9;
+		const offset = parseInt(tracks.length) - (lastTracks === 0 ? 9 : lastTracks);
 
 		let disabled = false;
 		if (offset > tracks.length - 9) disabled = true;
@@ -36,9 +35,9 @@ module.exports = {
 
 		const queueEmb = queueEmbed(
 			queue,
-			tracks.slice(offset, offset + 9).join('\n'),
+			tracks.slice(offset).join('\n'),
 			tracks.length,
-			Math.ceil(offset / 9) + 1
+			Math.ceil(tracks.length / 9)
 		);
 
 		return interaction.update({ embeds: [queueEmb], components: [row] });

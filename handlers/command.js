@@ -5,10 +5,6 @@ const { commands, bot } = require('../functions/bot');
 
 module.exports = async () => {
 	const commandFiles = glob.sync('commands/**/*.js', { absolute: true });
-	// const commandFiles = glob.sync(
-	// 	['commands/music/back.js', 'commands/music/play.js', 'commands/music/skip.js'],
-	// 	{ absolute: true }
-	// );
 
 	for (const file of commandFiles) {
 		const command = require(file);

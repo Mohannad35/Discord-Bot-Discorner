@@ -100,7 +100,7 @@ async function errorEmbed(interaction, text) {
 	return;
 }
 
-function queueEmbed(queue, text, length) {
+function queueEmbed(queue, text, length, page) {
 	if (!queue) {
 		throw Error("'queue' must be passed down as param! (queueEmbed)");
 	}
@@ -114,10 +114,10 @@ function queueEmbed(queue, text, length) {
 	if (!havePermissions(channel)) return;
 
 	const embedQ = new EmbedBuilder()
-		.setTitle(`Queue ${length} songs`)
+		.setTitle(`Queue ${length ?? '~'} songs`)
 		.setDescription(text)
-		.setColor(queue.guild.members.me.displayColor || Colors.Fuchsia)
-		.setFooter({ text: `Page 1 of ${Math.ceil(length / 9)}` });
+		.setColor(queue.guild.members.me.displayColor ?? Colors.Fuchsia)
+		.setFooter({ text: `Page ${page ?? '~'} of ${length ? Math.ceil(length / 9) : '~'}` });
 
 	return embedQ;
 }

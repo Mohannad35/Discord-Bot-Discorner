@@ -4,11 +4,11 @@ const { queueEmbed, wrongEmbed } = require('../functions/embeds');
 const { useQueue } = require('discord-player');
 
 module.exports = {
-	name: 'nextInQueue',
+	name: 'prevInQueue',
 
 	async execute(interaction) {
 		const description = interaction.message.embeds[0].description;
-		const offset = parseInt(description.split('\n')[8].slice(0, description.indexOf('.')));
+		const offset = parseInt(description.split('\n')[0].slice(0, description.indexOf('.'))) - 10;
 		const queue = useQueue(interaction.guild.id);
 
 		if (!queue || !queue.isPlaying())

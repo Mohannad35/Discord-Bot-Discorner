@@ -1,6 +1,7 @@
 const { useQueue } = require('discord-player');
-const { ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { wrongEmbed, queueEmbed } = require('../../functions/embeds');
+const { getButton } = require('../../functions/get-button');
 
 module.exports = {
 	name: 'queue',
@@ -18,31 +19,17 @@ module.exports = {
 		//Converts the queue into a array of tracks
 		const tracks = queue.tracks.toArray().map((track, i) => `${++i}. ${track.raw.title}`);
 
-		const next = new ButtonBuilder()
-			.setCustomId('nextInQueue')
-			.setLabel('▶️')
-			.setStyle(ButtonStyle.Primary);
+		const next = getButton('nextInQueue', null, ButtonStyle.Primary, false, '▶️');
 
-		const prev = new ButtonBuilder()
-			.setCustomId('prevInQueue')
-			.setLabel('◀️')
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(true);
+		const prev = getButton('prevInQueue', null, ButtonStyle.Primary, true, '◀️');
 
-		const first = new ButtonBuilder()
-			.setCustomId('firstInQueue')
-			.setLabel('⏪')
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(true);
+		const first = getButton('firstInQueue', null, ButtonStyle.Primary, true, '⏮️');
 
-		const last = new ButtonBuilder()
-			.setCustomId('lastInQueue')
-			.setLabel('⏩')
-			.setStyle(ButtonStyle.Primary);
+		const last = getButton('lastInQueue', null, ButtonStyle.Primary, false, '⏭️');
 
 		const row = new ActionRowBuilder().addComponents(first, prev, next, last);
 
-		const queueEmb = await queueEmbed(queue, tracks.slice(0, 9).join('\n'), tracks.length);
+		const queueEmb = queueEmbed(queue, tracks.slice(0, 9).join('\n'), tracks.length, 1);
 		const msg = await interaction.editReply({ embeds: [queueEmb], components: [row] });
 		// setTimeout(() => interaction.deleteReply(msg), 60000);
 	}

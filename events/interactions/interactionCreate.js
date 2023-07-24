@@ -9,7 +9,7 @@ const {
 } = require('discord.js');
 const { sendErrorLog } = require('../../functions/utils');
 const { wrongEmbed, queueEmbed } = require('../../functions/embeds');
-const { commands, cooldowns } = require('../../functions/bot');
+const { commands, cooldowns, buttons } = require('../../functions/bot');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -75,45 +75,15 @@ module.exports = {
 				});
 			}
 		} else if (interaction.isButton()) {
-			// respond to the button
-			if (interaction.customId === 'nextInQueue') {
-				const description = interaction.message.embeds[0].description;
-				const offset = parseInt(description.split('\n')[8].slice(0, description.indexOf('.')));
+			const name = interaction.customId;
+			const button = buttons.get(name);
 
-				getQueue(interaction, offset, true);
-			} else if (interaction.customId === 'prevInQueue') {
-				const description = interaction.message.embeds[0].description;
-				const offset = parseInt(description.split('\n')[0].slice(0, description.indexOf('.'))) - 10;
-
-				getQueue(interaction, offset < 0 ? 0 : offset, true);
-			}
+			if (!button)
+				return await interaction.reply({
+					content: 'This button is not registered!',
+					ephemeral: true
+				});
+			await button.execute(interaction);
 		}
 	}
 };
-
-async function getQueue(interaction, offset = 0) {
-	const queue = useQueue(interaction.guild.id);
-
-	if (!queue || !queue.isPlaying())
-		return await wrongEmbed(interaction, '❌ | No music is being played!');
-	//Converts the queue into a array of tracks
-	const tracks = queue.tracks.toArray().map((track, i) => `${i + 1}. ${track.raw.title}`);
-
-	const next = new ButtonBuilder()
-		.setCustomId('nextInQueue')
-		.setLabel('Next')
-		.setStyle(ButtonStyle.Success);
-	offset > tracks.length - 9 && next.setDisabled(true);
-
-	const prev = new ButtonBuilder()
-		.setCustomId('prevInQueue')
-		.setLabel('Prev')
-		.setStyle(ButtonStyle.Primary);
-	offset === 0 && prev.setDisabled(true);
-
-	const row = new ActionRowBuilder().addComponents(prev, next);
-
-	const queueEmb = queueEmbed(queue, tracks.slice(offset, offset + 9).join('\n'), tracks.length);
-
-	return interaction.update({ embeds: [queueEmb], components: [row] });
-}
