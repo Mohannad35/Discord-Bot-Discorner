@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const { useQueue } = require('discord-player');
-const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { wrongEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'move',
@@ -8,39 +8,40 @@ module.exports = {
 	category: 'music',
 	options: [
 		{
-			type: ApplicationCommandOptionType.String,
 			name: 'from',
 			description: `The song's current position.`,
+			type: ApplicationCommandOptionType.Number,
 			required: true
 		},
 		{
-			type: ApplicationCommandOptionType.String,
 			name: 'to',
 			description: `The song's target position.`,
+			type: ApplicationCommandOptionType.Number,
 			required: true
 		}
 	],
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
-		const from = interaction.options.getString('from');
-		const to = interaction.options.getString('to');
+		const from = interaction.options.getNumber('from') - 1;
+		const to = interaction.options.getNumber('to') - 1;
 
-		if (!queue || !queue.isPlaying())
-			return await wrongEmbed(interaction, '❌ | No music is being played!');
-		if (!from.match(/^[0-9]+$/))
-			return await wrongEmbed(interaction, '❌ | Invalid from position!');
-		if (!to.match(/^[0-9]+$/))
-			return await wrongEmbed(interaction, '❌ | Invalid to position!');
-		if (from < 1 || from > queue.tracks.length)
-			return await wrongEmbed(interaction, '❌ | Invalid from position!');
-		if (to < 1 || to > queue.tracks.length)
-			return await wrongEmbed(interaction, '❌ | Invalid to position!');
+		if (!queue || queue.isEmpty())
+			return await errorEmbed(interaction, '❌ | The queue has no more track.');
+		const invalidFrom = !from || from < 1 || from > queue.tracks.length;
+		if (invalidFrom) return await wrongEmbed(interaction, '❌ | Invalid from position!');
+		const invalidTo = !to || to < 1 || to > queue.tracks.length;
+		if (invalidTo) return await wrongEmbed(interaction, '❌ | Invalid to position!');
 
-		queue.moveTrack(queue.tracks.toArray()[from - 1], to - 1);
+		const fromTrack = queue.tracks.toArray()[from];
+		queue.moveTrack(fromTrack, to);
 
-		return await successEmbed(interaction, `✅ | Track moved from ${from} to ${to}!`);
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} moved ${fromTrack.title} to position ${to}!`,
+			'Move Command'
+		);
 	}
 };

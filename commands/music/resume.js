@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { wrongEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'resume',
@@ -16,6 +16,10 @@ module.exports = {
 
 		queue.node.resume();
 
-		return await successEmbed(interaction, '✅ | Resumed the playback.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} resumed playback.`,
+			'Resume Command'
+		);
 	}
 };

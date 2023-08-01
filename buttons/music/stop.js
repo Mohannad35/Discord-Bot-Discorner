@@ -1,7 +1,8 @@
 const { useQueue } = require('discord-player');
 
 module.exports = {
-	name: 'pauseQueue',
+	name: 'stopButton',
+	category: 'music',
 
 	async execute(interaction) {
 		const queue = useQueue(interaction.guild.id);

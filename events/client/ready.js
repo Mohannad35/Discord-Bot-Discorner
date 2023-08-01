@@ -5,6 +5,7 @@ const { bot } = require('../../functions/bot');
 
 module.exports = {
 	name: Events.ClientReady,
+	type: 'client',
 	once: true,
 
 	async execute() {
@@ -12,7 +13,9 @@ module.exports = {
 		await require('../../handlers/command')();
 
 		const serverCount = formatNumber(bot.guilds.cache.size);
-		const userCount = formatNumber(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
+		const userCount = formatNumber(
+			bot.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+		);
 
 		const statuses = [
 			{

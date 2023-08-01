@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { errorEmbed, successEmbed } = require('../../functions/embeds');
+const { errorEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'clear',
@@ -7,14 +7,18 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
-		if (queue.size < 2) return await errorEmbed(interaction, '❌ | The queue has no more track.');
+		if (queue?.isEmpty()) return await errorEmbed(interaction, '❌ | The queue has no more track.');
 
-		queue.tracks.clear();
+		queue.clear();
 
-		await successEmbed(interaction, '✅ | Cleared the queue tracks.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} cleared all tracks.`,
+			'Clear Command'
+		);
 	}
 };

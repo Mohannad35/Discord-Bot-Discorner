@@ -1,5 +1,5 @@
-const { useHistory } = require('discord-player');
-const { errorEmbed, successEmbed } = require('../../functions/embeds');
+const { useHistory, useQueue } = require('discord-player');
+const { sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'back',
@@ -7,15 +7,27 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const history = useHistory(interaction.guild.id);
+		const queue = useQueue(interaction.guild.id);
 
-		if (history.isEmpty())
-			return await errorEmbed(interaction, '❌ | The queue has no history track.');
+		if (history.isEmpty()) {
+			await queue.node.seek(0);
+
+			return await sendMsg(
+				interaction,
+				`> ${interaction.member.toString()} replayed the current track.`,
+				'Back Command'
+			);
+		}
 
 		await history.previous();
 
-		await successEmbed(interaction, '✅ | Backed the history track.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} backed \`${history.previousTrack.title}\`.`,
+			'Back Command'
+		);
 	}
 };

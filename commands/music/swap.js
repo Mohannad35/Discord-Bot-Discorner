@@ -1,6 +1,6 @@
 const { useQueue } = require('discord-player');
 const { ApplicationCommandOptionType } = require('discord.js');
-const { errorEmbed, wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { errorEmbed, wrongEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'swap',
@@ -22,7 +22,7 @@ module.exports = {
 	],
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
@@ -32,20 +32,24 @@ module.exports = {
 				'❌ | Need at least 3 songs in the queue to use this command.'
 			);
 
-		const first = interaction.options.getNumber('first', true);
-		const second = interaction.options.getNumber('second', true);
+		const first = interaction.options.getNumber('first', true) - 1;
+		const second = interaction.options.getNumber('second', true) - 1;
 
-		if (first < 1 || first >= queue.size)
-			return await wrongEmbed(interaction, '❌ | Provided `first` track index is not valid.');
+		if (first < 0 || first >= queue.size)
+			return await wrongEmbed(interaction, "❌ | Provided `first` track index doesn't exist");
 
-		if (second < 1 || second >= queue.size)
-			return await wrongEmbed(interaction, '❌ | Provided `second` track index is not valid.');
+		if (second < 0 || second >= queue.size)
+			return await wrongEmbed(interaction, "❌ | Provided `second` track index doesn't exist");
 
 		if (first === second)
-			return await wrongEmbed(interaction, '❌ | The tracks are already in this position.');
+			return await wrongEmbed(interaction, "Yeah sure I'll swap the track with itself 🧐.");
 
-		queue.node.swap(queue.tracks.toArray()[first - 1], queue.tracks.toArray()[second - 1]);
+		const queueArray = queue.tracks.toArray();
+		queue.node.swap(queueArray[first], queueArray[second]);
 
-		return await successEmbed(interaction, `✅ | Track ${first} & ${second} has been swapped.`);
+		const text = `> ${interaction.member.toString()} swapped \`${queueArray[first].title}\` & \`${
+			queueArray[second].title
+		}\` (\`${first + 1}\` & \`${second + 1})\`.`;
+		return await sendMsg(interaction, text, 'Swap Command');
 	}
 };

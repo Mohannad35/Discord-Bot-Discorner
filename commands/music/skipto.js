@@ -1,6 +1,6 @@
 const { useQueue } = require('discord-player');
 const { ApplicationCommandOptionType } = require('discord.js');
-const { errorEmbed, wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { errorEmbed, wrongEmbed, successEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'skipto',
@@ -16,12 +16,11 @@ module.exports = {
 	],
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
-		if (queue.size < 1)
-			return await errorEmbed(interaction, '❌ | The queue has no more track.');
+		if (queue.isEmpty()) return await errorEmbed(interaction, '❌ | The queue has no more track.');
 
 		const index = interaction.options.getNumber('index', true) - 1;
 
@@ -30,6 +29,10 @@ module.exports = {
 
 		queue.node.skipTo(index);
 
-		return await successEmbed(interaction, `✅ | Skipped to track ${index + 1}.`);
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} skipped to track ${index + 1}.`,
+			'Repeat Command'
+		);
 	}
 };

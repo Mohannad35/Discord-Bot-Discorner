@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { errorEmbed, successEmbed } = require('../../functions/embeds');
+const { errorEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'skip',
@@ -7,7 +7,7 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
@@ -16,6 +16,10 @@ module.exports = {
 
 		queue.node.skip();
 
-		await successEmbed(interaction, '✅ | Skipped the current track.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} skipped the current track.`,
+			'Skip Command'
+		);
 	}
 };

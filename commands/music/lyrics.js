@@ -2,6 +2,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 const { lyricsExtractor } = require('@discord-player/extractor');
 const { useQueue } = require('discord-player');
 const { baseEmbed, wrongEmbed, errorEmbed } = require('../../functions/embeds');
+const logger = require('../../functions/logger');
 const lyricsFinder = lyricsExtractor();
 
 module.exports = {
@@ -10,22 +11,21 @@ module.exports = {
 	category: 'music',
 	options: [
 		{
-			type: ApplicationCommandOptionType.String,
 			name: 'query',
 			description: 'The track title to search lyrics',
+			type: ApplicationCommandOptionType.String,
 			required: false
 		}
 	],
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
 		const query = interaction.options.getString('query', false) ?? queue?.currentTrack?.title;
 
-		if (!query)
-			return await wrongEmbed(interaction, '❌ | You forgot to provide the track name.');
+		if (!query) return await wrongEmbed(interaction, '❌ | You forgot to provide the track name.');
 
 		const queryFormated = query
 			.toLowerCase()
@@ -34,7 +34,9 @@ module.exports = {
 				''
 			);
 
-		const result = await lyricsFinder.search(queryFormated).catch(() => null);
+		const result = await lyricsFinder
+			.search(queryFormated)
+			.catch(error => logger.error('Lyrics Find', error));
 
 		if (!result || !result.lyrics)
 			return await errorEmbed(interaction, '❌ | No lyrics were found for this track.');
@@ -53,7 +55,9 @@ module.exports = {
 			})
 			.setDescription(lyrics);
 
-		const msg = await interaction.editReply({ embeds: [embed] }).catch(console.error);
+		const msg = await interaction
+			.followUp({ embeds: [embed] })
+			.catch(error => logger.error('Lyrics Embed', error));
 		// setTimeout(() => interaction.deleteReply(msg), 60000);
 	}
 };

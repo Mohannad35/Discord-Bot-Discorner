@@ -1,7 +1,9 @@
 const { useQueue, QueueRepeatMode } = require('discord-player');
-const { execute: refreshDashboard } = require('./../events/player/player.playerStart');
+const { execute: refreshDashboard } = require('../../events/player/playerStart');
+
 module.exports = {
-	name: 'repeatQueue',
+	name: 'repeatButton',
+	category: 'music',
 
 	async execute(interaction) {
 		const queue = useQueue(interaction.guild.id);

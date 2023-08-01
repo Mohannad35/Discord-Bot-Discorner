@@ -10,9 +10,6 @@ module.exports = function loadEvents() {
 	for (const file of eventFiles) {
 		const event = require(file);
 
-		let type = 'bot';
-		if (file.includes('player.')) type = 'player';
-
 		if (!event.execute) {
 			throw new TypeError(`[ERROR]: execute function is required for events! (${file})`);
 		}
@@ -21,7 +18,9 @@ module.exports = function loadEvents() {
 			throw new TypeError(`[ERROR]: name is required for events! (${file})`);
 		}
 
-		if (type === 'player') {
+
+		// GuildQueueEvent
+		if (event.type === 'player') {
 			player.events.on(event.name, event.execute);
 		} else if (event.once) {
 			bot.once(event.name, event.execute);
@@ -31,7 +30,7 @@ module.exports = function loadEvents() {
 
 		delete require.cache[require.resolve(file)];
 
-		logger.debug('EVENTS', `Loaded ${type}: ${event.name}`);
+		logger.debug('EVENTS', `Loaded ${event.type}: ${event.name}`);
 	}
 	logger.debug('EVENTS', `All ${eventFiles.length} events loaded!`);
 };

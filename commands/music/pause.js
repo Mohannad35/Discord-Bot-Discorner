@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { wrongEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'pause',
@@ -7,7 +7,7 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
@@ -16,6 +16,10 @@ module.exports = {
 
 		queue.node.pause();
 
-		return await successEmbed(interaction, 'Paused the playback.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} paused the playback.`,
+			'Pause Command'
+		);
 	}
 };

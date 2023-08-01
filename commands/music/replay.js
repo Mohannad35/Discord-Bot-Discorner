@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { wrongEmbed, successEmbed } = require('../../functions/embeds');
+const { wrongEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'replay',
@@ -11,11 +11,15 @@ module.exports = {
 
 		const queue = useQueue(interaction.guild.id);
 
-		if (!queue || !queue.isPlaying())
-			return await wrongEmbed(interaction, '❌ | There is no track in the queue.');
+		if (!queue?.isPlaying())
+			return await wrongEmbed(interaction, `❌ | The queue isn't playing right now.`);
 
 		await queue.node.seek(0);
 
-		return await successEmbed(interaction, '✅ | Replayed the current track.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} replayed the current track.`,
+			'Replay Command'
+		);
 	}
 };

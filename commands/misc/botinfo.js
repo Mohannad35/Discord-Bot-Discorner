@@ -10,10 +10,9 @@ module.exports = {
 
 	async execute(interaction) {
 		const serverCount = formatNumber(bot.guilds.cache.size);
-		// const channelCount = formatNumber(bot.guilds.cache.size);
-		// const userCount = formatNumber(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
+		const channelCount = formatNumber(bot.guilds.cache.size);
+		const userCount = formatNumber(bot.guilds.cache.reduce((a, g) => a + g.memberCount, 0));
 		const commandCount = formatNumber(commands.size);
-
 		const createdAt = new Date(bot.user.createdAt);
 		const uptime = formatDuration(Math.floor(bot.uptime / 1000));
 
@@ -32,7 +31,8 @@ Prefix: /`
 				},
 				{
 					name: 'Bot Stats',
-					value: `Servers: ${serverCount}\nCommands: ${commandCount}`
+					value: `Servers: ${serverCount}\nCommands: ${commandCount}
+Channels:${channelCount}\nUsers:${userCount}`
 				},
 				{
 					name: 'System Info',
@@ -57,7 +57,7 @@ Platform: ${process.platform}`
 		// const buttonsRow = new ActionRowBuilder().addComponents([supportButton, inviteButton]);
 
 		await interaction.reply({
-			ephemeral: true,
+			ephemeral: false,
 			embeds: [embed]
 			// components: [buttonsRow]
 		});

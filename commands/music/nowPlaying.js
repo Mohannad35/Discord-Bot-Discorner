@@ -1,5 +1,6 @@
 const { useQueue } = require('discord-player');
 const { baseEmbed } = require('../../functions/embeds');
+const { bot } = require('../../functions/bot');
 
 module.exports = {
 	name: 'nowplaying',
@@ -7,23 +8,24 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
-		const track = queue.currentTrack;
+		const track = queue?.currentTrack;
 
 		const embed = baseEmbed(interaction)
-			.setAuthor({ name: 'Nowplaying 🎵' })
+			.setAuthor({ name: 'Now playing 🎵', iconURL: bot.user.displayAvatarURL() })
 			.setTitle(`${track.title}`)
 			.setURL(`${track.url}`)
 			.setThumbnail(`${track.thumbnail}`)
-			.setDescription(`Played by: ${track.requestedBy.toString()}\n
-${queue.node.createProgressBar()}`);
+			.setDescription(`${queue.node.createProgressBar({})}`)
+			.setFooter({ text: 'Now Playing 🎶' })
+			.setTimestamp();
 
 		const msg = await interaction
-			.editReply({ ephemeral: true, embeds: [embed] })
-			.catch(console.error);
+			.editReply({ embeds: [embed] })
+			.catch(error => logger.error('Now Playing', error));
 		setTimeout(() => interaction.deleteReply(msg), 5000);
 	}
 };

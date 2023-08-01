@@ -1,14 +1,14 @@
 const { ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { getButton } = require('../functions/get-button');
-const { queueEmbed, wrongEmbed } = require('../functions/embeds');
 const { useQueue } = require('discord-player');
+const { getButton } = require('../../functions/get-button');
+const { queueEmbed, wrongEmbed } = require('../../functions/embeds');
 
 module.exports = {
-	name: 'nextInQueue',
+	name: 'firstInQueue',
+	category: 'queue',
 
 	async execute(interaction) {
-		const description = interaction.message.embeds[0].description;
-		const offset = parseInt(description.split('\n')[8].slice(0, description.indexOf('.')));
+		const offset = 0;
 		const queue = useQueue(interaction.guild.id);
 
 		if (!queue || !queue.isPlaying())
@@ -38,7 +38,7 @@ module.exports = {
 			queue,
 			tracks.slice(offset, offset + 9).join('\n'),
 			tracks.length,
-			Math.ceil(offset / 9) + 1
+			1
 		);
 
 		return interaction.update({ embeds: [queueEmb], components: [row] });

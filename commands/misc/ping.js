@@ -9,7 +9,9 @@ module.exports = {
 	async execute(interaction) {
 		const embed1 = baseEmbed(interaction).setDescription('Pinging...');
 
-		await interaction.reply({ ephemeral: true, embeds: [embed1] }).catch(console.error);
+		await interaction
+			.reply({ ephemeral: true, embeds: [embed1] })
+			.catch(error => logger.error('Ping', error));
 
 		const embed2 = baseEmbed(interaction).setTitle('🏓 Pong').setDescription(`💓: ${Math.round(
 			bot.ws.ping

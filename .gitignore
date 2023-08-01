@@ -12,3 +12,6 @@ node_modules/
 
 # Coverage directory used by tools
 coverage/
+
+# Zip files
+*.zip

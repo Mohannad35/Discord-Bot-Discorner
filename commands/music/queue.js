@@ -9,27 +9,22 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
-		if (!queue || !queue.isPlaying())
-			return await wrongEmbed(interaction, '❌ | There is no track in the queue.');
+		if (queue?.isEmpty())
+			return await wrongEmbed(interaction, '> ❌ | There is no track in the queue.');
 
 		//Converts the queue into a array of tracks
 		const tracks = queue.tracks.toArray().map((track, i) => `${++i}. ${track.raw.title}`);
-
 		const next = getButton('nextInQueue', null, ButtonStyle.Primary, false, '▶️');
-
 		const prev = getButton('prevInQueue', null, ButtonStyle.Primary, true, '◀️');
-
 		const first = getButton('firstInQueue', null, ButtonStyle.Primary, true, '⏮️');
-
 		const last = getButton('lastInQueue', null, ButtonStyle.Primary, false, '⏭️');
-
 		const row = new ActionRowBuilder().addComponents(first, prev, next, last);
-
 		const queueEmb = queueEmbed(queue, tracks.slice(0, 9).join('\n'), tracks.length, 1);
+
 		const msg = await interaction.editReply({ embeds: [queueEmb], components: [row] });
 		// setTimeout(() => interaction.deleteReply(msg), 60000);
 	}

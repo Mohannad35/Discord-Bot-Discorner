@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const { successEmbed } = require('../../functions/embeds');
+const { sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'stop',
@@ -7,12 +7,16 @@ module.exports = {
 	category: 'music',
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
 		queue.delete();
 
-		return await successEmbed(interaction, '✅ | Stopped the playback.');
+		return await sendMsg(
+			interaction,
+			`> ${interaction.member.toString()} stopped the playback.`,
+			'Repeat Command'
+		);
 	}
 };

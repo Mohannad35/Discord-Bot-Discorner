@@ -1,6 +1,6 @@
 const { useQueue } = require('discord-player');
 const { ApplicationCommandOptionType } = require('discord.js');
-const { baseEmbed, successEmbed } = require('../../functions/embeds');
+const { baseEmbed, sendMsg } = require('../../functions/embeds');
 
 module.exports = {
 	name: 'volume',
@@ -18,7 +18,7 @@ module.exports = {
 	],
 
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ ephemeral: false });
 
 		const queue = useQueue(interaction.guild.id);
 
@@ -30,13 +30,14 @@ module.exports = {
 				.setFooter({ text: "Use '/volume <1-200>' to change the volume." });
 
 			const msg = await interaction
-				.editReply({ ephemeral: true, embeds: [embed] })
+				.editReply({ ephemeral: false, embeds: [embed] })
 				.catch(console.error);
 			return setTimeout(() => interaction.deleteReply(msg), 5000);
 		}
 
 		queue.node.setVolume(newVol);
 
-		return await successEmbed(interaction, `✅ | Volume is updated to ${newVol}.`);
+		const text = `> ${interaction.member.toString()} updated volume to ${newVol}.`;
+		return await sendMsg(interaction, text, 'Volume Command');
 	}
 };
